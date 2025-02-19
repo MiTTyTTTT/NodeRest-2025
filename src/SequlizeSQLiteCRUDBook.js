@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const Sequelize = require ('sequelize');
 const app =express();
@@ -5,18 +6,18 @@ const app =express();
 app.use (express.json());
 
 const sequelize = new Sequelize('database','username','password',{
-    host : 'localgost',
+    host : 'localhost',
     dialect : 'sqlite',
     storage : './Database/SQBooks.sqlite'
 });
 
-const Bool = sequelize.define('book',{
+const Book = sequelize.define('book',{
     id : {
         type : Sequelize.INTEGER,
         autoIncrement : true,
         primaryKey: true
     },
-    title{
+    title: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -30,15 +31,15 @@ const Bool = sequelize.define('book',{
 sequelize.sync();
 
 app.get('/books',(req,res) => {
-    Book.findAll(),them(Books => {
+    Book.findAll().then(Books => {
         res.json(Books);
     }).catch(err =>{
         res.status(500).send(err)
     });
 });
 
-app.get('/books/id:', (req, res ) => {
-    Book.findBypk(req.params.id).then(book =>{
+app.get('/books/:id', (req, res ) => {
+    Book.findByPk(req.params.id).then(book =>{
         if(!book){
             res.status(404).send('Book not found');
         }else{
@@ -78,3 +79,22 @@ app.put('/books/:id', (req, res) => {
             res.status(500).send(err);
         });
 });
+app.delete('/books/:id', (req, res) => {
+    Book.findByPk(req.params.id).then(book => {
+            if (!book) {
+                res.status(404).send('Book not found');
+            } else {
+                book.destroy().then(() => {
+                        res.send({});
+                    })
+                    .catch(err => {
+                        res.status(500).send(err);
+                    });
+    }
+}).catch(err => {
+     res.status(500).send(err);
+});
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
