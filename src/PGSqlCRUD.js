@@ -5,11 +5,9 @@ const app =express();
 
 app.use (express.json());
 
-const sequelize = new Sequelize('database','username','password',{
-    host : 'localhost',
-    dialect : 'sqlite',
-    storage : './Database/SQBooks.sqlite'
-});
+const dbUrl = 'postgres://webadmin:DQFdye70388@node71716-env-6131444.proen.app.ruk-com.cloud:11750/Books';
+
+const sequelize = new Sequelize(dbUrl);
 
 const Book = sequelize.define('book',{
     id : {
@@ -84,9 +82,8 @@ app.delete('/books/:id', (req, res) => {
             if (!book) {
                 res.status(404).send('Book not found');
             } else {
-                book.destroy()
-.then(() => {
-                        res.send({ message: 'Book deleted successfully' });
+                book.destroy().then(() => {
+                        res.send({});
                     })
                     .catch(err => {
                         res.status(500).send(err);
